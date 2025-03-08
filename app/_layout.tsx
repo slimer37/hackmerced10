@@ -1,7 +1,17 @@
 import { Stack } from 'expo-router/stack';
 import { useAuth0, Auth0Provider } from 'react-native-auth0';
 import React from 'react';
-import {Button, Text, View, StyleSheet} from 'react-native';
+import { Text, View, StyleSheet} from 'react-native';
+import LoginPage from './login';
+
+function MainLayout() {
+  return (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ headerShown: true }} />
+    </Stack>
+  );
+}
 
 function App() {
   const {authorize, clearSession, user, error, isLoading} = useAuth0();
@@ -29,17 +39,11 @@ function App() {
   const loggedIn = user !== undefined && user !== null;
 
   return (
-    <View style={styles.container}>
-      {loggedIn && <Text>You are logged in as {user.name}</Text>}
-      {!loggedIn && <Text>You are not logged in</Text>}
-      {error && <Text>{error.message}</Text>}
-
-      <Button
-        onPress={loggedIn ? onLogout : onLogin}
-        title={loggedIn ? 'Log Out' : 'Log In'}
-      />
-    </View>
-  );
+    <>
+      {loggedIn && <MainLayout />}
+      {!loggedIn && <LoginPage onLogin={onLogin} error={error} />}
+    </>
+  )
 }
 
 export default function Layout() {
