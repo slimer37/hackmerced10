@@ -1,11 +1,17 @@
+import { useAuth0 } from 'react-native-auth0';
 import { Button, Text, View } from "react-native";
 
-interface LoginProps {
-  onLogin: () => Promise<void>,
-  error: Error
-}
+export default function LoginPage() {
+  const {authorize, clearSession, user, error, isLoading} = useAuth0();
 
-export default function LoginPage(props: LoginProps) {
+  const onLogin = async () => {
+    try {
+      await authorize();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  
   return (
     <View style={
       {
@@ -16,10 +22,10 @@ export default function LoginPage(props: LoginProps) {
       }
     }>
       <Text>You are not logged in.</Text>
-      {props.error && <Text>{props.error.message}</Text>}
+      {error && <Text>{error.message}</Text>}
 
       <Button
-        onPress={props.onLogin}
+        onPress={onLogin}
         title='Log In'
       />
     </View>

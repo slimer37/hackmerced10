@@ -14,23 +14,7 @@ function MainLayout() {
 }
 
 function App() {
-  const {authorize, clearSession, user, error, isLoading} = useAuth0();
-
-  const onLogin = async () => {
-    try {
-      await authorize();
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const onLogout = async () => {
-    try {
-      await clearSession();
-    } catch (e) {
-      console.log('Log out cancelled');
-    }
-  };
+  const {user, isLoading} = useAuth0();
 
   if (isLoading) {
     return <View style={styles.container}><Text>Loading</Text></View>;
@@ -41,7 +25,7 @@ function App() {
   return (
     <>
       {loggedIn && <MainLayout />}
-      {!loggedIn && <LoginPage onLogin={onLogin} error={error} />}
+      {!loggedIn && <LoginPage />}
     </>
   )
 }
