@@ -15,7 +15,7 @@ interface MessageBubbleProps {
 function MessageBubble({ text, sender }: MessageBubbleProps) {
   return (
     <View style={[styles.messageBubble, sender === 'user' ? styles.userBubble : styles.aiBubble]}>
-      <Text style={styles.messageText}>{text}</Text>
+      <Text style={sender === 'user' ? styles.userText : styles.aiText}>{text}</Text>
     </View>
   );
 }
@@ -53,6 +53,7 @@ export default function Chatbot() {
             value={input}
             onChangeText={setInput}
             placeholder="Type a message..."
+            placeholderTextColor={'#909090'}
           />
           <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
             <Text style={styles.sendText}>Send</Text>
@@ -68,7 +69,8 @@ const styles = StyleSheet.create({
   messageBubble: { padding: 10, borderRadius: 10, margin: 5, maxWidth: '80%' },
   userBubble: { alignSelf: 'flex-end', backgroundColor: '#007bff' },
   aiBubble: { alignSelf: 'flex-start', backgroundColor: '#e0e0e0' },
-  messageText: { color: '#fff' },
+  userText: { color: '#fff' },
+  aiText: { color: '#000' },
   inputContainer: { flexDirection: 'row', padding: 10, borderTopWidth: 1, borderColor: '#ccc' },
   input: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 20, paddingHorizontal: 10, backgroundColor: '#fff' },
   sendButton: { marginLeft: 10, backgroundColor: '#007bff', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 20 },
