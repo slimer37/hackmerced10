@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 
 interface Message {
   id: string;
@@ -39,31 +39,33 @@ export default function Chatbot() {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={messages}
-        inverted
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageBubble text={item.text} sender={item.sender} />}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={input}
-          onChangeText={setInput}
-          placeholder="Type a message..."
+    <KeyboardAvoidingView style={{flex: 1}} behavior='padding' keyboardVerticalOffset={90}>
+      <View style={styles.container}>
+        <FlatList
+          data={messages}
+          inverted
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <MessageBubble text={item.text} sender={item.sender} />}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <Text style={styles.sendText}>Send</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={input}
+            onChangeText={setInput}
+            placeholder="Type a message..."
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+            <Text style={styles.sendText}>Send</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, backgroundColor: '#f5f5f5' },
-  messageBubble: { padding: 10, borderRadius: 10, marginVertical: 5, maxWidth: '80%' },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  messageBubble: { padding: 10, borderRadius: 10, margin: 5, maxWidth: '80%' },
   userBubble: { alignSelf: 'flex-end', backgroundColor: '#007bff' },
   aiBubble: { alignSelf: 'flex-start', backgroundColor: '#e0e0e0' },
   messageText: { color: '#fff' },
