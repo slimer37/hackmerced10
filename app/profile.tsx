@@ -2,20 +2,20 @@ import { Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 
 function LogOutButton() {
-    const {clearSession} = useAuth0();
-  
-    const onLogout = async () => {
-      try {
-        await clearSession();
-      } catch (e) {
-        console.log('Log out cancelled');
-      }
-    };
-  
-    return (
-      <Button onPress={onLogout} title="Log Out"/>
-    );
-  }
+  const {clearSession} = useAuth0();
+
+  const onLogout = async () => {
+    try {
+      await clearSession();
+    } catch (e) {
+      console.log('Log out cancelled');
+    }
+  };
+
+  return (
+    <Button onPress={onLogout} title="Log Out"/>
+  );
+}
 
 export default function Profile() {
   const {user} = useAuth0();
