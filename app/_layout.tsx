@@ -7,8 +7,8 @@ import LoginPage from './login';
 function MainLayout() {
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="profile" options={{ headerShown: true }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Main" }} />
+      <Stack.Screen name="profile" options={{ headerShown: true, title: "Profile", headerBackTitle: "Back" }} />
     </Stack>
   );
 }

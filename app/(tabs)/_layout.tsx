@@ -1,22 +1,15 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
-import { navigate } from 'expo-router/build/global-state/routing';
-import { useAuth0 } from 'react-native-auth0';
+import { Tabs, useNavigation } from 'expo-router';
 
-// TODO: Move to separate page
 function ProfileButton() {
-  const {clearSession} = useAuth0();
+  const navigation = useNavigation();
 
-  const onLogout = async () => {
-    try {
-      await clearSession();
-    } catch (e) {
-      console.log('Log out cancelled');
-    }
-  };
-
+  const goToProfile = () => {
+    navigation.navigate('profile' as never);
+  }
+  
   return (
-    <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }} onPress={onLogout}/>
+    <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }} onPress={goToProfile}/>
   );
 }
 
