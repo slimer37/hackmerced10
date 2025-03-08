@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function Index2() {
+export default function Chatbot() {
   return (
     <View
       style={{
@@ -9,8 +9,7 @@ export default function Index2() {
         alignItems: "center",
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Text>Hello there!</Text>
+      <Text>Chatbot goes here.</Text>
     </View>
   );
 }

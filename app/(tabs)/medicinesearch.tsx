@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function Home() {
+export default function MedicineSearch() {
   return (
     <View
       style={{
@@ -9,7 +9,7 @@ export default function Home() {
         alignItems: "center",
       }}
     >
-      <Text>Homepage goes here.</Text>
+      <Text>Medicine search goes here.</Text>
     </View>
   );
 }
