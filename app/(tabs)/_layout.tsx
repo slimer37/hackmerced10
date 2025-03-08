@@ -1,13 +1,29 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { navigate } from 'expo-router/build/global-state/routing';
+import { useAuth0 } from 'react-native-auth0';
+
+// TODO: Move to separate page
+function ProfileButton() {
+  const {clearSession} = useAuth0();
+
+  const onLogout = async () => {
+    try {
+      await clearSession();
+    } catch (e) {
+      console.log('Log out cancelled');
+    }
+  };
+
+  return (
+    <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }} onPress={onLogout}/>
+  );
+}
 
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: 'blue',
-        headerLeft: () => (
-            <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }}/>
-        )
+        headerLeft: ProfileButton
      }}>
       <Tabs.Screen
         name="index"
