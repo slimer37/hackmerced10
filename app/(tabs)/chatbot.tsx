@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Button } from 'react-native';
-import { GetAIResponse } from '../api';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Button, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { GetAIResponse, GetChatHistory } from '../api';
 import { useAuth0 } from 'react-native-auth0';
 import { useNavigation } from 'expo-router';
 import Markdown from '@ronradtke/react-native-markdown-display';
@@ -35,6 +35,34 @@ export default function Chatbot() {
   const [input, setInput] = useState<string>('');
   const [pending, setPending] = useState<boolean>(false);
 
+  useEffect(() => {
+    const getHistory = async () => {
+      const accessToken = (await getCredentials())?.accessToken;
+      const history = await GetChatHistory(accessToken);
+
+      if (history.length === 0) {
+        setMessages([]);
+        return;
+      }
+
+      let m: Message[] = [];
+      
+      for (let i = history.length; i >= 0; i--) {
+        const element = history[i];
+        m.push({
+          id: (Date.now() - history.length + i).toString(),
+          text: element,
+          sender: i % 2 == 0 ? 'user' : 'ai',
+          rec: undefined
+        })
+      }
+
+      setMessages(m);
+    };
+
+    getHistory();
+  }, []);
+
   const handleSend = async () => {
     if (input.trim().length === 0) return;
 
@@ -66,13 +94,13 @@ export default function Chatbot() {
 
       console.log("recommendation: " + recommendation)
 
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai', rec: recommendation };
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: response, sender: 'ai', rec: recommendation };
 
       setMessages((prevMessages) => [aiMessage, ...prevMessages]);
 
     } else {
 
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai', rec: undefined };
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: response, sender: 'ai', rec: undefined };
 
       setMessages((prevMessages) => [aiMessage, ...prevMessages]);
     }
@@ -83,18 +111,20 @@ export default function Chatbot() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' keyboardVerticalOffset={90}>
       <View style={styles.container}>
-        {messages.length === 0 ? (
-          <Text style={{ textAlign: "center", marginTop: 50, marginHorizontal: 10, color: "gray", flex: 1 }}>
-            No messages yet. Send a message to get information about available OTC medications.
-          </Text>
-        ) : (
-          <FlatList
-            data={messages}
-            inverted
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <MessageBubble message={item} />}
-          />
-        )}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          {messages.length === 0 ? (
+            <Text style={{ textAlign: "center", marginTop: 50, marginHorizontal: 10, color: "gray", flex: 1 }}>
+              No messages yet. Send a message to get information about available OTC medications.
+            </Text>
+          ) : (
+            <FlatList
+              data={messages}
+              inverted
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <MessageBubble message={item} />}
+            />
+          )}
+        </TouchableWithoutFeedback>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
@@ -102,6 +132,9 @@ export default function Chatbot() {
             onChangeText={setInput}
             placeholder="Type a message..."
             placeholderTextColor={'#909090'}
+            returnKeyType='send'
+            enablesReturnKeyAutomatically
+            onSubmitEditing={handleSend}
           />
           <TouchableOpacity style={pending ? styles.disabledSendButton : styles.sendButton} onPress={handleSend}>
             <Text style={styles.sendText}>Send</Text>

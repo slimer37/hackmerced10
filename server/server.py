@@ -5,7 +5,7 @@ from functools import wraps
 import jwt
 from jwt.algorithms import RSAAlgorithm
 
-from ai import get_ai_response
+from ai import get_ai_response, clear_history, get_history
 
 AUTH0_DOMAIN = "dev-g764byi3mgr8fsp2.us.auth0.com"
 API_AUDIENCE = "https://dev.slimer37.me"
@@ -90,12 +90,21 @@ def aimsg():
     response = get_ai_response(user_id, user_message)
     return jsonify({"response": response})
 
+@app.route('/api/clear', methods=['POST'])
+@requires_auth
+def clear_all():
+    user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
+    clear_history(user_id)
+    return jsonify({"response": "Cleared any history for that user."})
+
 @app.route('/api/ai-msg', methods=['GET'])
 @requires_auth
-def save_conversation():
+def ai_msg_history():
     user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
-    
-    # Get conversation from MongoDB
+    history = get_history(user_id)
+    print(history)
+    comp = [[u1["text"], u2["text"]] for u1, u2 in zip(history[0], history[1])]
+    return jsonify({"messages":[item for sublist in comp for item in sublist]})
 
 if __name__ == "__main__":
     app.run(debug=True)

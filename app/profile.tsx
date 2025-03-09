@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
-import { GetUserId } from "./api";
+import { GetUserId, ClearData } from "./api";
 
 function LogOutButton() {
   const {clearSession} = useAuth0();
@@ -47,6 +47,12 @@ export default function Profile() {
 
       <Text style={{color: '#999', fontSize: 8, marginTop: 20}}>This application build was developed by Alfred & Marcelo for HackMerced X!</Text>
       <LogOutButton />
+      <Button
+        onPress={async () => {
+          const accessToken = (await getCredentials())?.accessToken;
+          await ClearData(accessToken);
+        }}
+        title="Clear My Data" />
     </View>
   );
 }

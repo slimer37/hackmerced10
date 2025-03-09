@@ -3,6 +3,26 @@ import { fetch } from 'expo/fetch';
 // Define the URL of your backend API
 const url = "http://10.35.17.98:3000";
 
+export async function ClearData(accessToken: string | undefined): Promise<void> {
+  try {
+    const apiResponse = await fetch(url + '/api/clear', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      method: 'POST'
+    });
+
+    if (!apiResponse.ok) {
+      console.error('Response failure: ' + apiResponse.status);
+    } else {
+      apiResponse.json().then(j => console.log(j));
+      alert('Success');
+    }
+  } catch (error) {
+    console.error("Error during fetch:", error);
+  }
+}
+
 export async function GetUserId(accessToken: string | undefined): Promise<string | null> {
   try {
     const apiResponse = await fetch(url + '/api/myid', {
@@ -19,6 +39,30 @@ export async function GetUserId(accessToken: string | undefined): Promise<string
   } catch (error) {
     console.error("Error during fetch:", error);
     return null;
+  }
+}
+
+export async function GetChatHistory(accessToken: string | undefined) : Promise<string[]> {
+  console.log("attempting to get chat history");
+  try {
+    const apiResponse = await fetch(url + '/api/ai-msg', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      method: 'GET'
+    });
+
+    if (!apiResponse.ok) {
+      console.error('Response failure: ' + apiResponse.status);
+      return [];
+    } else {
+      let json = await apiResponse.json();
+      console.log(json["messages"]);
+      return json["messages"];
+    }
+  } catch (error) {
+    console.error("Error during fetch:", error);
+    return [];
   }
 }
 

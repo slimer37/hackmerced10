@@ -21,6 +21,9 @@ with open(prompt_file_location) as f:
 
 chat_collection = get_database(db_name)["chats"]
 
+def clear_history(user_id):
+    chat_collection.delete_one({"userId": user_id})
+
 def get_history(user_id) -> tuple[list[str], list[str]]:
     user_data = chat_collection.find_one({"userId": user_id})
 
@@ -66,15 +69,19 @@ print("Connected to Gemini session.")
 # === Medical Response Function ===
 def get_ai_response(user_id, user_message):
     try:
+        final_prompt = user_message
+
         # Send user message to Gemini AI with script
         global first_message_of_session
         if first_message_of_session:
             history = str(get_history(user_id))
-            user_message = prompt_format.format(user_message=user_message, history=history)
+            final_prompt = prompt_format.format(user_message=f"\"{user_message}\"", history=history)
             first_message_of_session = False
+        else:
+            final_prompt = f"Next user message: \"{user_message}\""
 
         # Assuming you have a chat session object that interacts with the Gemini AI
-        response = chat_session.send_message_stream("Next user message: " + user_message)
+        response = chat_session.send_message_stream(final_prompt)
 
         # Collect response from streamed output
         bot_response = "".join(chunk.text for chunk in response).strip()
