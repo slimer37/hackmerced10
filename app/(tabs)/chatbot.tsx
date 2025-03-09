@@ -22,13 +22,13 @@ function MessageBubble({ message }: MessageBubbleProps) {
     <View style={[styles.messageBubble, message.sender === 'user' ? styles.userBubble : styles.aiBubble]}>
       <Text style={message.sender === 'user' ? styles.userText : styles.aiText}>{message.text}</Text>
       {message.rec && <Button title={`Search for ${message.rec}`} onPress={() =>
-        navigation.navigate({name: 'medicinesearch', params: {query: message.rec}} as never)}/>}
+        navigation.navigate({ name: 'medicinesearch', params: { query: message.rec } } as never)} />}
     </View>
   );
 }
 
 export default function Chatbot() {
-  const {getCredentials} = useAuth0();
+  const { getCredentials } = useAuth0();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
@@ -38,7 +38,7 @@ export default function Chatbot() {
     if (input.trim().length === 0) return;
 
     setPending(true);
-    
+
     const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user', rec: undefined };
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
     setInput('');
@@ -62,7 +62,7 @@ export default function Chatbot() {
       const recommendation = response.substring(recStart + kwLen + 1, response.length - kwLen - 1);
 
       response = response.substring(0, recStart - 1);
-      
+
       console.log("recommendation: " + recommendation)
 
       const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai', rec: recommendation };
@@ -80,14 +80,20 @@ export default function Chatbot() {
   };
 
   return (
-    <KeyboardAvoidingView style={{flex: 1}} behavior='padding' keyboardVerticalOffset={90}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' keyboardVerticalOffset={90}>
       <View style={styles.container}>
-        <FlatList
-          data={messages}
-          inverted
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <MessageBubble message={item} />}
-        />
+        {messages.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 50, marginHorizontal: 10, color: "gray", flex: 1 }}>
+            No messages yet. Send a message to get information about available OTC medications.
+          </Text>
+        ) : (
+          <FlatList
+            data={messages}
+            inverted
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <MessageBubble message={item} />}
+          />
+        )}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
