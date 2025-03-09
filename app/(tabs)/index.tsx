@@ -37,7 +37,7 @@ export default function MyMedicine() {
     }
 
     // Format time for display (in 12-hour format)
-    const formattedTime = newTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newMed = {
       id: Date.now().toString(),
