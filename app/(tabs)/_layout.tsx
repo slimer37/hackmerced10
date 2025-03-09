@@ -42,13 +42,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="mymedicine"
-        options={{
-          title: 'My Medicine',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="circle-o" color={color} />,
-        }}
-      />
     </Tabs>
   );
 }
