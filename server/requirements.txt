@@ -1,4 +1,4 @@
-# /requirements.txt
-
 flask
 Authlib
+pymongo
+google-genai
