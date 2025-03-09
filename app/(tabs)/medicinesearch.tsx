@@ -1,17 +1,24 @@
-import React, { useRef, useState } from 'react';
+import React, { MutableRefObject, useRef, useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
 
 interface SearchParams {
   data: any,
-  mapRef: React.MutableRefObject<MapView>,
+  mapRef: React.MutableRefObject<MapView | undefined>,
   placeholder: string,
+}
+
+interface Location {
+  id: number,
+  name: string,
+  latitude: number,
+  longitude: number
 }
 
 function SearchDropdown({ data, mapRef, placeholder = "Search..." }: SearchParams) {
   const [query, setQuery] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
+  const [filteredData, setFilteredData] = useState<Location[]>([]);
 
   const handleSearch = (text: any) => {
     setQuery(text);
@@ -44,7 +51,7 @@ function SearchDropdown({ data, mapRef, placeholder = "Search..." }: SearchParam
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => {
                   setQuery(item.name);
-                  mapRef.current.animateToRegion({
+                  mapRef.current?.animateToRegion({
                     latitude: item.latitude,
                     longitude: item.longitude,
                     latitudeDelta: 0.01,
@@ -62,7 +69,7 @@ function SearchDropdown({ data, mapRef, placeholder = "Search..." }: SearchParam
 };
 
 export default function MedicineSearch() {
-  const mapRef = useRef(null);
+  const mapRef: React.MutableRefObject<MapView | undefined> = useRef();
 
   const pharmacies = [
     { id: 1, name: 'CVS Merced', latitude: 37.319733, longitude: -120.479582 },
