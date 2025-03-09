@@ -151,7 +151,7 @@ export default function MyMedicine() {
             <DateTimePicker style={{ alignSelf: "center" }} accentColor="black" textColor="black" testID="dateTimePicker" value={time} mode="time" is24Hour={false} onChange={onChange} display="spinner" />
 
             <Button title={editingMedicine ? "Save" : "Add"} onPress={editingMedicine ? editMedicine : addMedicine} />
-            <Button title="Cancel" color="red" onPress={resetForm} 
+            <Button title="Cancel" color="red" onPress={resetForm} />
           </View>
         </View>
       </Modal>
