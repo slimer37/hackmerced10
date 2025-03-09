@@ -36,6 +36,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="medicinesearch"
+        options={{
+          title: 'Find & Restock',
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="mymedicine"
         options={{
           title: 'My Medicine',
