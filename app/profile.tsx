@@ -1,4 +1,4 @@
-import { Button, Text, View } from "react-native";
+import { Alert, Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 
 function LogOutButton() {
@@ -18,7 +18,17 @@ function LogOutButton() {
 }
 
 export default function Profile() {
-  const {user} = useAuth0();
+  const {user, getCredentials} = useAuth0();
+
+  async function onCallAPI() {
+    const accessToken = (await getCredentials())?.accessToken;
+    const apiResponse = await fetch('http://172.20.10.6:3000/api/private', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      },
+    });
+    Alert.alert(await apiResponse.text());
+  }
 
   return (
     <View
@@ -29,6 +39,7 @@ export default function Profile() {
       }}
     >
       <Text>You are logged in as {user?.name}</Text>
+      <Button title="Test Private API Auth" onPress={onCallAPI}/>
       <LogOutButton />
     </View>
   );

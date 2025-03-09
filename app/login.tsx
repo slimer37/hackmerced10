@@ -6,7 +6,7 @@ export default function LoginPage() {
 
   const onLogin = async () => {
     try {
-      await authorize();
+      await authorize({ audience: "https://dev.slimer37.me" });
     } catch (e) {
       console.log(e);
     }
