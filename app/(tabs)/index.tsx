@@ -11,8 +11,10 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons"; // For dropdown icon
+import { useAuth0 } from "react-native-auth0";
 
 export default function MyMedicine() {
+  const {user} = useAuth0();
   const [time, setTime] = useState(new Date());
   const [medicines, setMedicines] = useState([
     { id: "1", name: "Paracetamol", time: new Date("2025-01-01T08:00:00"), dosage: "500mg", frequency: "Twice a day" },
@@ -92,8 +94,17 @@ export default function MyMedicine() {
 
   return (
     <View style={{ flex: 1, padding: 20, backgroundColor: "#f5f5f5" }}>
-      <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
-        My Medicines
+      <View style={{ marginBottom: 20, alignSelf: 'center' }}>
+        <Text style={{ fontSize: 24, marginBottom: 5, alignSelf: 'center' }}>
+          Good morning,
+        </Text>
+        <Text style={{ fontSize: 24, fontWeight: "bold", alignSelf: 'center' }}>
+          {user?.name}!
+        </Text>
+      </View>
+
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 12, alignSelf: 'center' }}>
+        My medication
       </Text>
 
       <FlatList
