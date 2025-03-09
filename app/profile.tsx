@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
+import { GetUserId } from "./api";
 
 function LogOutButton() {
   const {clearSession} = useAuth0();
@@ -26,17 +27,7 @@ export default function Profile() {
   useEffect(() => {
     const getId = async() => {
       const accessToken = (await getCredentials())?.accessToken;
-      const apiResponse = await fetch('http://172.20.10.6:3000/api/myid', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        },
-      });
-
-      if (!apiResponse.ok) {
-        setId("Failed to fetch.");
-      } else {
-        setId((await apiResponse.json())["user_id"]);
-      }
+      setId(await(GetUserId(accessToken)))
     }
 
     getId();
