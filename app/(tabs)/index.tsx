@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   Button,
+  Image,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons"; // For dropdown icon
@@ -29,15 +30,11 @@ export default function MyMedicine() {
     setTime(selectedDate || time);
   };
 
-  // Add medicine to the list
   const addMedicine = () => {
     if (newMedicine.trim() === "") {
       alert("Please enter a medicine name.");
       return;
     }
-
-    // Format time for display (in 12-hour format)
-    const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newMed = {
       id: Date.now().toString(),
@@ -99,18 +96,20 @@ export default function MyMedicine() {
         My Medicines
       </Text>
 
-      {/* List medicines */}
       <FlatList
         data={medicines}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={{ backgroundColor: "white", padding: 15, marginBottom: 10, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 }}>
             <TouchableOpacity onPress={() => toggleExpand(item.id)} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <View>
-                <Text style={{ fontSize: 18, fontWeight: "600" }}>{item.name}</Text>
+            <Image source={require('/Users/marcelo/Desktop/HackMercedX/hackmerced10/assets/images/pill.webp')} style={{ width: 24, height: 24, marginLeft: 10 }} />
+              <View style={{ flex: 1, marginLeft: 15 }}>
+                <Text style={{ fontSize: 18, fontWeight: "600", flex: 1 }}>{item.name}</Text>
                 <Text style={{ color: "gray" }}>Take at: {item.time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}</Text>
               </View>
-              <Ionicons name={expandedMedicineId === item.id ? "chevron-up" : "chevron-down"} size={24} color="black" />
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Ionicons name={expandedMedicineId === item.id ? "chevron-up" : "chevron-down"} size={24} color="black" />
+              </View>
             </TouchableOpacity>
 
             {expandedMedicineId === item.id && (

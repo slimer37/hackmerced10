@@ -43,6 +43,9 @@ export default function Profile() {
     >
       <Text>You are logged in as <Text style={{fontWeight: 'bold'}}>{user?.name}</Text></Text>
       <Text style={{color: '#999', fontSize: 8}}>ID: {id}</Text>
+      <Text style={{color: '#999', fontSize: 8}}>Email: {user?.email}</Text>
+
+      <Text style={{color: '#999', fontSize: 8, marginTop: 20}}>This application build was developed by Alfred & Marcelo for HackMerced X!</Text>
       <LogOutButton />
     </View>
   );
