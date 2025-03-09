@@ -2,7 +2,7 @@ import { fetch } from 'expo/fetch';
 
 const url = "http://10.35.17.98:3000"
 
-export async function GetUserId(accessToken: string | undefined) {
+export async function GetUserId(accessToken: string | undefined) : Promise<string | null> {
   try {
     const apiResponse = await fetch(url + '/api/myid', {
       headers: {
@@ -21,7 +21,7 @@ export async function GetUserId(accessToken: string | undefined) {
   }
 }
 
-export async function GetAIResponse(accessToken: string | undefined, userMessage: string) {
+export async function GetAIResponse(accessToken: string | undefined, userMessage: string) : Promise<string | null> {
   console.log("asking " + userMessage + url + '/api/ai-msg');
 
   try {
@@ -37,11 +37,7 @@ export async function GetAIResponse(accessToken: string | undefined, userMessage
       })
     });
   
-    if (!apiResponse.ok) {
-      return `Failed to fetch: ${apiResponse.status}`;
-    } else {
-      return (await apiResponse.json())["response"];
-    }
+    return (await apiResponse.json())["response"];
   } catch (error) {
     console.error("Error during fetch:", error);
     return null;

@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Button } from 'react-native';
 import { GetAIResponse } from '../api';
 import { useAuth0 } from 'react-native-auth0';
+import { useNavigation } from 'expo-router';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'ai';
+  rec: string | undefined;
 }
 
 interface MessageBubbleProps {
-  text: string;
-  sender: 'user' | 'ai';
+  message: Message
 }
 
-function MessageBubble({ text, sender }: MessageBubbleProps) {
+function MessageBubble({ message }: MessageBubbleProps) {
+  const navigation = useNavigation();
+
   return (
-    <View style={[styles.messageBubble, sender === 'user' ? styles.userBubble : styles.aiBubble]}>
-      <Text style={sender === 'user' ? styles.userText : styles.aiText}>{text}</Text>
+    <View style={[styles.messageBubble, message.sender === 'user' ? styles.userBubble : styles.aiBubble]}>
+      <Text style={message.sender === 'user' ? styles.userText : styles.aiText}>{message.text}</Text>
+      {message.rec && <Button title={`Search for ${message.rec}`} onPress={() =>
+        navigation.navigate({name: 'medicinesearch', params: {query: message.rec}} as never)}/>}
     </View>
   );
 }
@@ -34,19 +39,40 @@ export default function Chatbot() {
 
     setPending(true);
     
-    const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user' };
+    const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user', rec: undefined };
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
     setInput('');
 
     const accessToken = (await getCredentials())?.accessToken;
 
-    const response = await GetAIResponse(accessToken, input);
+    let response = await GetAIResponse(accessToken, input);
+
+    const recommendKeyword = 'RECOMMEND';
 
     if (response === null) {
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI unreachable. See logs.`, sender: 'ai' };
+
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI unreachable. See logs.`, sender: 'ai', rec: undefined };
+
       setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+
+    } else if (response.endsWith(recommendKeyword)) {
+
+      const kwLen = recommendKeyword.length;
+      const recStart = response.indexOf(recommendKeyword);
+      const recommendation = response.substring(recStart + kwLen + 1, response.length - kwLen - 1);
+
+      response = response.substring(0, recStart - 1);
+      
+      console.log("recommendation: " + recommendation)
+
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai', rec: recommendation };
+
+      setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+
     } else {
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai' };
+
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai', rec: undefined };
+
       setMessages((prevMessages) => [aiMessage, ...prevMessages]);
     }
 
@@ -60,7 +86,7 @@ export default function Chatbot() {
           data={messages}
           inverted
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <MessageBubble text={item.text} sender={item.sender} />}
+          renderItem={({ item }) => <MessageBubble message={item} />}
         />
         <View style={styles.inputContainer}>
           <TextInput
