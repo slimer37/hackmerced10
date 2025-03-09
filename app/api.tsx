@@ -48,49 +48,9 @@ export async function GetAIResponse(
     const userId = await GetUserId(accessToken);
     const timestamp = new Date().toISOString();  // Get current timestamp
 
-    // Send the conversation data to the backend (MongoDB)
-    await saveConversation(userId, userMessage, aiResponse, timestamp);
-
     return aiResponse;
   } catch (error) {
     console.error("Error during fetch:", error);
     return null;
-  }
-}
-
-// Function to save conversation data to the backend (MongoDB)
-export async function saveConversation(
-  userId: string | null,
-  userMessage: string,
-  aiResponse: string,
-  timestamp: string
-) {
-  if (!userId) {
-    console.error("User ID is null, cannot save conversation.");
-    return;
-  }
-
-  try {
-    const response = await fetch(url + '/save_conversation', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        user_message: userMessage,
-        ai_response: aiResponse,
-        timestamp: timestamp
-      }),
-    });
-
-    if (response.ok) {
-      console.log("Conversation saved successfully.");
-    } else {
-      console.error("Failed to save conversation.");
-    }
-  } catch (error) {
-    console.error("Error saving conversation:", error);
   }
 }

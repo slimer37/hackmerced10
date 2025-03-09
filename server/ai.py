@@ -3,6 +3,8 @@ from google import genai
 from datetime import datetime
 import os
 
+import traceback
+
 from mongodb import get_database
 
 db_name = "medical_chatbot_db"
@@ -19,12 +21,24 @@ with open(prompt_file_location) as f:
 
 chat_collection = get_database(db_name)["chats"]
 
+def get_history(user_id) -> tuple[list[str], list[str]]:
+    user_data = chat_collection.find_one({"userId": user_id})
+
+    if not user_data: return ([], [])
+
+    return (user_data["prompts"], user_data["responses"])
+
 # ===Check & Update Chat Function ===
 def check_and_update(user_id, user_message, bot_response):
-    # Check if the document exists
-    existing_entry = chat_collection.find_one({"userId": user_id})
-    
-    if existing_entry:
+    if is_first_message(user_id):
+        print("Chat updated successfully!")
+        chat_collection.insert_one({
+            "userId": user_id,
+            "prompts": [{"text": user_message, "timestamp": datetime.utcnow()}],
+            "responses": [{"text": bot_response, "timestamp": datetime.utcnow()}]
+        })
+        print("New chat document created!")
+    else:
         # Update the existing document
         chat_collection.update_one(
             {"userId": user_id},
@@ -35,30 +49,29 @@ def check_and_update(user_id, user_message, bot_response):
                 }
             }
         )
-        print("Chat updated successfully!")
-    else:
-        chat_collection.insert_one({
-            "userId": user_id,
-            "prompts": [{"text": user_message, "timestamp": datetime.utcnow()}],
-            "responses": [{"text": bot_response, "timestamp": datetime.utcnow()}]
-        })
-        print("New chat document created!")
+        print("Updated existing")
+
+def is_first_message(user_id):
+    return not chat_collection.find_one({"userId": user_id})
 
 # === Gemini AI Client ===
 genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
 
-print("Connected to Gemini session.")
-
 # Create a chat session to retain conversation history
 chat_session = genai_client.chats.create(model="gemini-2.0-flash")
-first_message = True
+first_message_of_session = True
+
+print("Connected to Gemini session.")
 
 # === Medical Response Function ===
 def get_ai_response(user_id, user_message):
     try:
         # Send user message to Gemini AI with script
-        if first_message:
-            user_message = prompt_format.format(user_message=user_message)
+        global first_message_of_session
+        if first_message_of_session:
+            history = str(get_history(user_id))
+            user_message = prompt_format.format(user_message=user_message, history=history)
+            first_message_of_session = False
 
         # Assuming you have a chat session object that interacts with the Gemini AI
         response = chat_session.send_message_stream("Next user message: " + user_message)
@@ -71,7 +84,7 @@ def get_ai_response(user_id, user_message):
 
         return bot_response
     except Exception as e:
-        print(f"❌ Error generating response: {e}")
+        traceback.print_exc()
         return "I am unable to process your request at the moment."
 
 # === Command-line Chatbot Interaction ===
