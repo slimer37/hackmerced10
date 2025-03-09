@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Alert, Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 
@@ -20,26 +21,32 @@ function LogOutButton() {
 export default function Profile() {
   const {user, getCredentials} = useAuth0();
 
-  async function onCallAPI() {
-    const accessToken = (await getCredentials())?.accessToken;
-    const apiResponse = await fetch('http://172.20.10.6:3000/api/private', {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      },
-    });
-    Alert.alert(await apiResponse.text());
-  }
+  const [id, setId] = useState('fetching...');
+
+  useEffect(() => {
+    const getId = async() => {
+      const accessToken = (await getCredentials())?.accessToken;
+      const apiResponse = await fetch('http://172.20.10.6:3000/api/myid', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        },
+      });
+      setId((await apiResponse.json())["user_id"]);
+    }
+
+    getId();
+  }, []);
 
   return (
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
+        paddingVertical: 40
       }}
     >
-      <Text>You are logged in as {user?.name}</Text>
-      <Button title="Test Private API Auth" onPress={onCallAPI}/>
+      <Text>You are logged in as <Text style={{fontWeight: 'bold'}}>{user?.name}</Text></Text>
+      <Text style={{color: '#999', fontSize: 8}}>ID: {id}</Text>
       <LogOutButton />
     </View>
   );

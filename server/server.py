@@ -1,51 +1,73 @@
-"""Python Flask API Auth0 integration example
-"""
+import json
+import requests
+from flask import Flask, request, jsonify
+from functools import wraps
+import jwt
+from jwt.algorithms import RSAAlgorithm
 
-from os import environ as env
+AUTH0_DOMAIN = "dev-g764byi3mgr8fsp2.us.auth0.com"
+API_AUDIENCE = "https://dev.slimer37.me"
+ALGORITHMS = ["RS256"]
 
-from dotenv import load_dotenv, find_dotenv
-from flask import Flask, jsonify
-from authlib.integrations.flask_oauth2 import ResourceProtector
-from validator import Auth0JWTBearerTokenValidator
+app = Flask(__name__)
 
-require_auth = ResourceProtector()
-validator = Auth0JWTBearerTokenValidator(
-    "dev-g764byi3mgr8fsp2.us.auth0.com",
-    "https://dev.slimer37.me"
-)
-require_auth.register_token_validator(validator)
+def get_auth0_public_key():
+    """Fetch and cache Auth0 public key for verifying tokens."""
+    jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+    jwks = requests.get(jwks_url).json()
+    return {key["kid"]: RSAAlgorithm.from_jwk(json.dumps(key)) for key in jwks["keys"]}
 
-APP = Flask(__name__)
+PUBLIC_KEYS = get_auth0_public_key()
 
+def verify_jwt(token):
+    """Decode and verify an Auth0 access token."""
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+        rsa_key = PUBLIC_KEYS.get(unverified_header["kid"])
+        if not rsa_key:
+            raise Exception("Invalid Key ID")
 
-@APP.route("/api/public")
-def public():
-    """No access token required."""
-    response = (
-        "Hello from a public endpoint! You don't need to be"
-        " authenticated to see this."
-    )
-    return jsonify(message=response)
+        payload = jwt.decode(
+            token,
+            rsa_key,
+            algorithms=ALGORITHMS,
+            audience=API_AUDIENCE,
+            issuer=f"https://{AUTH0_DOMAIN}/",
+        )
+        return payload  # The decoded payload contains the user's information
+    except jwt.ExpiredSignatureError:
+        return {"error": "Token expired"}
+    except jwt.InvalidTokenError:
+        return {"error": "Invalid token"}
 
+def requires_auth(f):
+    """Decorator to protect routes with Auth0 authentication."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", None)
+        if not auth_header:
+            return jsonify({"error": "Missing authorization header"}), 401
 
-@APP.route("/api/private")
-@require_auth(None)
-def private():
-    """A valid access token is required."""
-    response = (
-        "Hello from a private endpoint! You need to be"
-        " authenticated to see this."
-    )
-    return jsonify(message=response)
+        parts = auth_header.split()
+        if parts[0].lower() != "bearer" or len(parts) != 2:
+            return jsonify({"error": "Invalid authorization header"}), 401
 
+        token = parts[1]
+        payload = verify_jwt(token)
+        if "error" in payload:
+            return jsonify(payload), 401
 
-@APP.route("/api/private-scoped")
-@require_auth("read:messages")
-def private_scoped():
-    """A valid access token and scope are required."""
-    response = (
-        "Hello from a private endpoint! You need to be"
-        " authenticated and have a scope of read:messages to see"
-        " this."
-    )
-    return jsonify(message=response)
+        request.user = payload  # Attach user data to the request object
+        return f(*args, **kwargs)
+
+    return decorated
+
+@app.route("/api/myid", methods=["GET"])
+@requires_auth
+def myid():
+    """Example route that requires authentication."""
+    user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
+    return jsonify({"user_id": user_id})
+
+if __name__ == "__main__":
+    app.run(debug=True)
