@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, View, TextInput, FlatList, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
 
 interface SearchParams {
   data: any,
-  placeholder: string
+  mapRef: React.MutableRefObject<MapView>,
+  placeholder: string,
 }
 
-function SearchDropdown({ data, placeholder = "Search..." }: SearchParams) {
+function SearchDropdown({ data, mapRef, placeholder = "Search..." }: SearchParams) {
   const [query, setQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
@@ -41,7 +42,15 @@ function SearchDropdown({ data, placeholder = "Search..." }: SearchParams) {
             data={filteredData}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => setQuery(item.name)}>
+              <TouchableOpacity onPress={() => {
+                  setQuery(item.name);
+                  mapRef.current.animateToRegion({
+                    latitude: item.latitude,
+                    longitude: item.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01
+                  })
+                }}>
                 <Text style={{ padding: 10, borderBottomWidth: 1 }}>{item.name}</Text>
               </TouchableOpacity>
             )}
@@ -53,7 +62,7 @@ function SearchDropdown({ data, placeholder = "Search..." }: SearchParams) {
 };
 
 export default function MedicineSearch() {
-  const [query, setQuery] = useState<string>('');
+  const mapRef = useRef(null);
 
   const pharmacies = [
     { id: 1, name: 'CVS Merced', latitude: 37.319733, longitude: -120.479582 },
@@ -64,6 +73,7 @@ export default function MedicineSearch() {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={{
           latitude: 37.3647,
@@ -83,7 +93,7 @@ export default function MedicineSearch() {
           />
         ))}
       </MapView>
-      <SearchDropdown data={pharmacies} placeholder='Type a medication or pharmacy...' />
+      <SearchDropdown mapRef={mapRef} data={pharmacies} placeholder='Type a medication or pharmacy...' />
     </View>
   );
 }
