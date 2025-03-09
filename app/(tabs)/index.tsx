@@ -102,7 +102,7 @@ export default function MyMedicine() {
         renderItem={({ item }) => (
           <View style={{ backgroundColor: "white", padding: 15, marginBottom: 10, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4 }}>
             <TouchableOpacity onPress={() => toggleExpand(item.id)} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Image source={require('/Users/marcelo/Desktop/HackMercedX/hackmerced10/assets/images/pill.webp')} style={{ width: 24, height: 24, marginLeft: 10 }} />
+            <Image source={require('../../assets/images/pill.webp')} style={{ width: 24, height: 24, marginLeft: 10 }} />
               <View style={{ flex: 1, marginLeft: 15 }}>
                 <Text style={{ fontSize: 18, fontWeight: "600", flex: 1 }}>{item.name}</Text>
                 <Text style={{ color: "gray" }}>Take at: {item.time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}</Text>
