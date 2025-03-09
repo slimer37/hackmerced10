@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { GetAIResponse } from '../api';
+import { useAuth0 } from 'react-native-auth0';
 
 interface Message {
   id: string;
@@ -21,21 +23,34 @@ function MessageBubble({ text, sender }: MessageBubbleProps) {
 }
 
 export default function Chatbot() {
+  const {getCredentials} = useAuth0();
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
+  const [pending, setPending] = useState<boolean>(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim().length === 0) return;
+
+    setPending(true);
     
     const userMessage: Message = { id: Date.now().toString(), text: input, sender: 'user' };
     setMessages((prevMessages) => [userMessage, ...prevMessages]);
     setInput('');
-    
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${input}`, sender: 'ai' };
+
+    const accessToken = (await getCredentials())?.accessToken;
+
+    const response = await GetAIResponse(accessToken, input);
+
+    if (response === null) {
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI unreachable. See logs.`, sender: 'ai' };
       setMessages((prevMessages) => [aiMessage, ...prevMessages]);
-    }, 1000);
+    } else {
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: `AI: ${response}`, sender: 'ai' };
+      setMessages((prevMessages) => [aiMessage, ...prevMessages]);
+    }
+
+    setPending(false);
   };
 
   return (
@@ -55,7 +70,7 @@ export default function Chatbot() {
             placeholder="Type a message..."
             placeholderTextColor={'#909090'}
           />
-          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+          <TouchableOpacity style={pending ? styles.disabledSendButton : styles.sendButton} onPress={handleSend}>
             <Text style={styles.sendText}>Send</Text>
           </TouchableOpacity>
         </View>
@@ -74,5 +89,6 @@ const styles = StyleSheet.create({
   inputContainer: { flexDirection: 'row', padding: 10, borderTopWidth: 1, borderColor: '#ccc' },
   input: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 20, paddingHorizontal: 10, backgroundColor: '#fff' },
   sendButton: { marginLeft: 10, backgroundColor: '#007bff', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 20 },
+  disabledSendButton: { marginLeft: 10, backgroundColor: '#425363', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 20 },
   sendText: { color: '#fff', fontWeight: 'bold' },
 });

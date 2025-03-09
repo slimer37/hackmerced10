@@ -5,6 +5,8 @@ from functools import wraps
 import jwt
 from jwt.algorithms import RSAAlgorithm
 
+from ai import get_ai_response
+
 AUTH0_DOMAIN = "dev-g764byi3mgr8fsp2.us.auth0.com"
 API_AUDIENCE = "https://dev.slimer37.me"
 ALGORITHMS = ["RS256"]
@@ -67,7 +69,26 @@ def requires_auth(f):
 def myid():
     """Example route that requires authentication."""
     user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
+    print(user_id + " requested")
     return jsonify({"user_id": user_id})
+
+@app.route("/api/ai-msg", methods=["POST"])
+@requires_auth
+def aimsg():
+    user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
+    data = request.get_json()
+    user_message = data.get("message", "")
+
+    print(data)
+
+    if data is None:
+        return jsonify({"error": "Invalid JSON payload"}), 400
+    
+    if user_message == "":
+        return jsonify({"error": "Message cannot be empty."}), 400
+    
+    response = get_ai_response(user_message)
+    return jsonify({"response": response})
 
 if __name__ == "__main__":
     app.run(debug=True)

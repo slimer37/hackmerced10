@@ -36,7 +36,7 @@ genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
 chat_session = genai_client.chats.create(model="gemini-2.0-flash")
 
 # === Medical Response Function ===
-def get_medical_response(user_message):
+def get_ai_response(user_message):
     try:
         # Send user message to Gemini AI with script
         response = chat_session.send_message_stream(prompt_format.format(user_message=user_message))
@@ -60,7 +60,7 @@ def chat():
         if user_input.lower() == "exit":
             print("👋 Goodbye!")
             break
-        response = get_medical_response(user_input)
+        response = get_ai_response(user_input)
         print(f"Gemini: {response}\n")
 
 # Run chatbot
