@@ -1,10 +1,21 @@
 # === Function to Generate Medical Responses ===
 from google import genai
 from datetime import datetime
+import os
 
 from mongodb import get_database
 
 db_name = "medical_chatbot_db"
+prompt_filename = "script.md"
+prompt_file_location = os.path.join(os.path.dirname(__file__), prompt_filename)
+
+prompt_format = ""
+
+if not os.path.exists(prompt_file_location):
+    raise Exception(f"Couldn't find {prompt_file_location}")
+
+with open(prompt_file_location) as f:
+    prompt_format = f.read()
 
 chat_collection = get_database(db_name)["chats"]
 
@@ -27,22 +38,8 @@ chat_session = genai_client.chats.create(model="gemini-2.0-flash")
 # === Medical Response Function ===
 def get_medical_response(user_message):
     try:
-        # Send user message to Gemini AI with memory retention
-        response = chat_session.send_message_stream(f"""
-            You are a **medical chatbot** designed to provide **health-related guidance** ONLY.
-            
-            - **Retain and recall previous conversations** to provide context-aware responses.
-            - If a user mentions **allergies, medications, or conditions**, remember them for future interactions.
-            - **Offer over-the-counter medication recommendations** based on symptoms.
-            - **Ask follow-up questions** for clarity, such as:
-              - 'Do you have any known allergies to medications?'
-              - 'Are you currently taking any medications?'
-              - 'How long have you had these symptoms?'
-            - **Warn users** if symptoms suggest an emergency and advise seeking medical attention.
-            - If the input is NOT medical-related, respond with: 'I am a medical chatbot and can only discuss health-related topics.'
-
-            User input: {user_message}
-        """)
+        # Send user message to Gemini AI with script
+        response = chat_session.send_message_stream(prompt_format.format(user_message=user_message))
 
         # Collect response from streamed output
         bot_response = "".join(chunk.text for chunk in response).strip()
