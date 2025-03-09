@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs, useNavigation } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
 
 function ProfileButton() {
   const navigation = useNavigation();
@@ -9,7 +10,9 @@ function ProfileButton() {
   }
   
   return (
-    <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }} onPress={goToProfile}/>
+    <TouchableOpacity onPress={goToProfile} style={{ width: 50 }}>
+      <FontAwesome size={28} name="user" color="black" style={{margin:'auto'}}/>
+    </TouchableOpacity>
   );
 }
 
