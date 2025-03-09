@@ -32,14 +32,20 @@ def store_chat(user_message, bot_response):
 # === Gemini AI Client ===
 genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
 
+print("Connected to Gemini session.")
+
 # Create a chat session to retain conversation history
 chat_session = genai_client.chats.create(model="gemini-2.0-flash")
+first_message = True
 
 # === Medical Response Function ===
 def get_ai_response(user_message):
     try:
         # Send user message to Gemini AI with script
-        response = chat_session.send_message_stream(prompt_format.format(user_message=user_message))
+        if first_message:
+            user_message = prompt_format.format(user_message=user_message)
+
+        response = chat_session.send_message_stream("Next user message: " + user_message)
 
         # Collect response from streamed output
         bot_response = "".join(chunk.text for chunk in response).strip()
