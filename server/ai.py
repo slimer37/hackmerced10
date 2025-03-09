@@ -1,16 +1,12 @@
 # === Function to Generate Medical Responses ===
 from google import genai
 from datetime import datetime
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
-# === MongoDB Connection ===
-uri = "mongodb+srv://mramirez282:hackmerced10@hackmerced10.xqw2k.mongodb.net/?retryWrites=true&w=majority&appName=hackmerced10"
-mongo_client = MongoClient(uri, server_api=ServerApi('1'))
+from mongodb import get_database
 
-# Connect to database and collection
-db = mongo_client["medical_chatbot_db"]
-chat_collection = db["chats"]
+db_name = "medical_chatbot_db"
+
+chat_collection = get_database(db_name)["chats"]
 
 # === Store Chat Function ===
 def store_chat(user_message, bot_response):

@@ -1,6 +1,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
+# PARAMS
 uri = "mongodb+srv://mramirez282:hackmerced10@hackmerced10.xqw2k.mongodb.net/?retryWrites=true&w=majority&appName=hackmerced10"
 
 # Create a new client and connect to the server
@@ -13,5 +14,5 @@ try:
 except Exception as e:
     print(e)
 
-db = client['hackmerced10'] 
-collection = db['gemini_chats']
+def get_database(db_name):
+    return client[db_name]
