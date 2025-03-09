@@ -9,31 +9,38 @@ import {
   Button,
 } from "react-native";
 
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 export default function MyMedicine() {
+  const [time, setTime] = useState(new Date());
+  
   const [medicines, setMedicines] = useState([
-    { id: "1", name: "Paracetamol", time: "8:00 AM" },
-    { id: "2", name: "Ibuprofen", time: "12:00 PM" },
+    { id: "1", name: "Paracetamol", time: new Date("2025-01-01T08:00:00") },
+    { id: "2", name: "Ibuprofen", time: new Date("2025-01-01T12:00:00") },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newMedicine, setNewMedicine] = useState("");
-  const [newTime, setNewTime] = useState("");
+
+  const onChange = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    setTime(currentDate);
+  };
 
   const addMedicine = () => {
-    if (newMedicine.trim() === "" || newTime.trim() === "") {
-      alert("Please enter both medicine name and time.");
+    if (newMedicine.trim() === "") {
+      alert("Please enter a medicine name.");
       return;
     }
 
     const newMed = {
       id: Date.now().toString(),
       name: newMedicine,
-      time: newTime,
+      time: time,
     };
 
     setMedicines([...medicines, newMed]);
     setNewMedicine("");
-    setNewTime("");
     setModalVisible(false);
   };
 
@@ -66,7 +73,11 @@ export default function MyMedicine() {
             }}
           >
             <Text style={{ fontSize: 18, fontWeight: "600" }}>{item.name}</Text>
-            <Text style={{ color: "gray" }}>Take at: {item.time}</Text>
+            <Text style={{ color: "gray" }}>Take at: {item.time.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            })}</Text>
           </View>
         )}
       />
@@ -107,7 +118,8 @@ export default function MyMedicine() {
             </Text>
 
             <TextInput
-              placeholder="Medicine Name"
+              placeholder="Name"
+              placeholderTextColor="gray"
               value={newMedicine}
               onChangeText={setNewMedicine}
               style={{
@@ -117,19 +129,21 @@ export default function MyMedicine() {
                 marginBottom: 10,
                 borderRadius: 5,
               }}
+              returnKeyType="done"
             />
 
-            <TextInput
-              placeholder="Time (e.g., 8:00 AM)"
-              value={newTime}
-              onChangeText={setNewTime}
-              style={{
-                borderWidth: 1,
-                borderColor: "#ddd",
-                padding: 10,
-                marginBottom: 10,
-                borderRadius: 5,
-              }}
+            <Text>When should this be taken?</Text>
+
+            <DateTimePicker
+              style={{alignSelf: 'center'}}
+              accentColor="black"
+              textColor="black"
+              testID="dateTimePicker"
+              value={time}
+              mode="time"
+              is24Hour={false}
+              onChange={onChange}
+              display="spinner"
             />
 
             <Button title="Add" onPress={addMedicine} />
