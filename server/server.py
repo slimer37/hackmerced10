@@ -87,8 +87,15 @@ def aimsg():
     if user_message == "":
         return jsonify({"error": "Message cannot be empty."}), 400
     
-    response = get_ai_response(user_message)
+    response = get_ai_response(user_id, user_message)
     return jsonify({"response": response})
+
+@app.route('/api/ai-msg', methods=['GET'])
+@requires_auth
+def save_conversation():
+    user_id = request.user.get("sub")  # Auth0 User ID (sub claim)
+    
+    # Get conversation from MongoDB
 
 if __name__ == "__main__":
     app.run(debug=True)

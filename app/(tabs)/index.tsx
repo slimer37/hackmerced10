@@ -29,11 +29,15 @@ export default function MyMedicine() {
     setTime(selectedDate || time);
   };
 
+  // Add medicine to the list
   const addMedicine = () => {
     if (newMedicine.trim() === "") {
       alert("Please enter a medicine name.");
       return;
     }
+
+    // Format time for display (in 12-hour format)
+    const formattedTime = newTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newMed = {
       id: Date.now().toString(),
@@ -95,6 +99,7 @@ export default function MyMedicine() {
         My Medicines
       </Text>
 
+      {/* List medicines */}
       <FlatList
         data={medicines}
         keyExtractor={(item) => item.id}
@@ -124,7 +129,6 @@ export default function MyMedicine() {
           </View>
         )}
       />
-      
       <TouchableOpacity style={{ backgroundColor: "#4CAF50", padding: 15, borderRadius: 10, alignItems: "center", marginTop: 20 }} onPress={() => setModalVisible(true)}>
         <Text style={{ color: "white", fontSize: 18 }}>+ Add Medicine</Text>
       </TouchableOpacity>
@@ -147,7 +151,7 @@ export default function MyMedicine() {
             <DateTimePicker style={{ alignSelf: "center" }} accentColor="black" textColor="black" testID="dateTimePicker" value={time} mode="time" is24Hour={false} onChange={onChange} display="spinner" />
 
             <Button title={editingMedicine ? "Save" : "Add"} onPress={editingMedicine ? editMedicine : addMedicine} />
-            <Button title="Cancel" color="red" onPress={resetForm} />
+            <Button title="Cancel" color="red" onPress={resetForm} 
           </View>
         </View>
       </Modal>

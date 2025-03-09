@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Keyboard
 import { GetAIResponse } from '../api';
 import { useAuth0 } from 'react-native-auth0';
 import { useNavigation } from 'expo-router';
+import Markdown from '@ronradtke/react-native-markdown-display';
 
 interface Message {
   id: string;
@@ -20,7 +21,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <View style={[styles.messageBubble, message.sender === 'user' ? styles.userBubble : styles.aiBubble]}>
-      <Text style={message.sender === 'user' ? styles.userText : styles.aiText}>{message.text}</Text>
+      <Markdown style={{text: {color: message.sender === 'user' ? '#fff' : '#000'}}}>{message.text}</Markdown>
       {message.rec && <Button title={`Search for ${message.rec}`} onPress={() =>
         navigation.navigate({ name: 'medicinesearch', params: { query: message.rec } } as never)} />}
     </View>
@@ -113,11 +114,9 @@ export default function Chatbot() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
-  messageBubble: { padding: 10, borderRadius: 10, margin: 5, maxWidth: '80%' },
+  messageBubble: { paddingHorizontal: 10, borderRadius: 10, margin: 5, maxWidth: '80%' },
   userBubble: { alignSelf: 'flex-end', backgroundColor: '#007bff' },
   aiBubble: { alignSelf: 'flex-start', backgroundColor: '#e0e0e0' },
-  userText: { color: '#fff' },
-  aiText: { color: '#000' },
   inputContainer: { flexDirection: 'row', padding: 10, borderTopWidth: 1, borderColor: '#ccc' },
   input: { flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 20, paddingHorizontal: 10, backgroundColor: '#fff' },
   sendButton: { marginLeft: 10, backgroundColor: '#007bff', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 20 },
