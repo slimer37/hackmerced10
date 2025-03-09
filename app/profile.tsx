@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Text, View } from "react-native";
+import { Button, Text, View } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 
 function LogOutButton() {
@@ -31,7 +31,12 @@ export default function Profile() {
           'Authorization': `Bearer ${accessToken}`
         },
       });
-      setId((await apiResponse.json())["user_id"]);
+
+      if (!apiResponse.ok) {
+        setId("Failed to fetch.");
+      } else {
+        setId((await apiResponse.json())["user_id"]);
+      }
     }
 
     getId();
