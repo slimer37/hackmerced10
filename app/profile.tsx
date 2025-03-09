@@ -46,6 +46,7 @@ export default function Profile() {
       <Text style={{color: '#999', fontSize: 8}}>Email: {user?.email}</Text>
 
       <Text style={{color: '#999', fontSize: 8, marginTop: 20}}>This application build was developed by Alfred & Marcelo for HackMerced X!</Text>
+      <Text style={{color: '#999', fontSize: 8}}>v1.0</Text>
       <LogOutButton />
       <Button
         onPress={async () => {
