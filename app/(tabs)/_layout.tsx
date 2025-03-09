@@ -1,6 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import { navigate } from 'expo-router/build/global-state/routing';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function TabLayout() {
   return (
@@ -28,13 +29,6 @@ export default function TabLayout() {
         options={{
           title: 'Find & Restock',
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="mymedicine"
-        options={{
-          title: 'My Medicine',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="circle-o" color={color} />,
         }}
       />
     </Tabs>
