@@ -69,18 +69,3 @@ def chat():
 # Run chatbot
 if __name__ == "__main__":
     chat()
-
-# === Command-line Chatbot Interaction ===
-def chat():
-    print("\n🤖 Medical Chatbot (Type 'exit' to quit)\n")
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() == "exit":
-            print("👋 Goodbye!")
-            break
-        response = get_medical_response(user_input)
-        print(f"Gemini: {response}\n")
-
-# Run chatbot
-if __name__ == "__main__":
-    chat()
