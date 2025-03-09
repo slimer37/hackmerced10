@@ -1,35 +1,3 @@
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-from google import genai
-from datetime import datetime
-
-# === MongoDB Connection ===
-uri = "mongodb+srv://mramirez282:hackmerced10@hackmerced10.xqw2k.mongodb.net/?retryWrites=true&w=majority&appName=hackmerced10"
-mongo_client = MongoClient(uri, server_api=ServerApi('1'))
-
-try:
-    mongo_client.admin.command('ping')
-    print("✅ Connected to MongoDB!")
-except Exception as e:
-    print(f"MongoDB Connection Error: {e}")
-
-# Database and collection setup
-db = mongo_client["medical_chatbot_db"]
-chat_collection = db["chats"]
-
-# === Configure Gemini Client ===
-genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
-
-# === Function to Store Chat in MongoDB ===
-def store_chat(user_message, bot_response):
-    chat_data = {
-        "user": user_message,
-        "gemini": bot_response,
-        "timestamp": datetime.utcnow()
-    }
-    chat_collection.insert_one(chat_data)
-    print("💾 Chat stored successfully!")
-
 # === Function to Generate Medical Responses ===
 from google import genai
 from datetime import datetime
@@ -55,7 +23,7 @@ def store_chat(user_message, bot_response):
     print("💾 Chat stored successfully!")
 
 # === Gemini AI Client ===
-genai_client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
+genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
 
 # Create a chat session to retain conversation history
 chat_session = genai_client.chats.create(model="gemini-2.0-flash")
