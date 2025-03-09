@@ -27,7 +27,7 @@ export default function Profile() {
   useEffect(() => {
     const getId = async() => {
       const accessToken = (await getCredentials())?.accessToken;
-      setId(await(GetUserId(accessToken)))
+      setId(await GetUserId(accessToken) ?? 'null')
     }
 
     getId();
