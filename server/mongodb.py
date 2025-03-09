@@ -1,5 +1,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from flask import Flask, request, jsonify
+from datetime import datetime
 
 # PARAMS
 uri = "mongodb+srv://mramirez282:hackmerced10@hackmerced10.xqw2k.mongodb.net/?retryWrites=true&w=majority&appName=hackmerced10"
@@ -14,5 +16,6 @@ try:
 except Exception as e:
     print(e)
 
+# Get the database
 def get_database(db_name):
     return client[db_name]

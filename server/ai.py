@@ -19,15 +19,30 @@ with open(prompt_file_location) as f:
 
 chat_collection = get_database(db_name)["chats"]
 
-# === Store Chat Function ===
-def store_chat(user_message, bot_response):
-    chat_data = {
-        "user": user_message,
-        "gemini": bot_response,
-        "timestamp": datetime.utcnow()
-    }
-    chat_collection.insert_one(chat_data)
-    print("💾 Chat stored successfully!")
+# ===Check & Update Chat Function ===
+def check_and_update(user_id, user_message, bot_response):
+    # Check if the document exists
+    existing_entry = chat_collection.find_one({"userId": user_id})
+    
+    if existing_entry:
+        # Update the existing document
+        chat_collection.update_one(
+            {"userId": user_id},
+            {
+                "$push": {
+                    "prompts": {"text": user_message, "timestamp": datetime.utcnow()},
+                    "responses": {"text": bot_response, "timestamp": datetime.utcnow()}
+                }
+            }
+        )
+        print("Chat updated successfully!")
+    else:
+        chat_collection.insert_one({
+            "userId": user_id,
+            "prompts": [{"text": user_message, "timestamp": datetime.utcnow()}],
+            "responses": [{"text": bot_response, "timestamp": datetime.utcnow()}]
+        })
+        print("New chat document created!")
 
 # === Gemini AI Client ===
 genai_client = genai.Client(api_key="AIzaSyCwQ4LPM4J3Skd21Uc7TwWx-msZdGkXIc0")
@@ -39,19 +54,20 @@ chat_session = genai_client.chats.create(model="gemini-2.0-flash")
 first_message = True
 
 # === Medical Response Function ===
-def get_ai_response(user_message):
+def get_ai_response(user_id, user_message):
     try:
         # Send user message to Gemini AI with script
         if first_message:
             user_message = prompt_format.format(user_message=user_message)
 
+        # Assuming you have a chat session object that interacts with the Gemini AI
         response = chat_session.send_message_stream("Next user message: " + user_message)
 
         # Collect response from streamed output
         bot_response = "".join(chunk.text for chunk in response).strip()
 
         # Store chat history in MongoDB
-        store_chat(user_message, bot_response)
+        check_and_update(user_id, user_message, bot_response)
 
         return bot_response
     except Exception as e:

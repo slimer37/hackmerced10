@@ -8,6 +8,7 @@ import {
   TextInput,
   Button,
 } from "react-native";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function MyMedicine() {
   const [medicines, setMedicines] = useState([
@@ -17,38 +18,45 @@ export default function MyMedicine() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newMedicine, setNewMedicine] = useState("");
-  const [newTime, setNewTime] = useState("");
+  const [newTime, setNewTime] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
 
+  // Add medicine to the list
   const addMedicine = () => {
-    if (newMedicine.trim() === "" || newTime.trim() === "") {
-      alert("Please enter both medicine name and time.");
+    if (newMedicine.trim() === "") {
+      alert("Please enter the medicine name.");
       return;
     }
+
+    // Format time for display (in 12-hour format)
+    const formattedTime = newTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const newMed = {
       id: Date.now().toString(),
       name: newMedicine,
-      time: newTime,
+      time: formattedTime,
     };
 
     setMedicines([...medicines, newMed]);
-    setNewMedicine("");
-    setNewTime("");
-    setModalVisible(false);
+    setNewMedicine(""); // Reset the new medicine input
+    setNewTime(new Date()); // Reset the time picker to the current time
+    setModalVisible(false); // Close modal after adding
+  };
+
+  // Handle time selection from DateTimePicker
+  const handleTimeChange = (event: any, selectedDate: Date | undefined) => {
+    const currentDate = selectedDate || newTime;
+    setShowPicker(false); // Hide the picker after selecting a time
+    setNewTime(currentDate); // Update selected time
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        padding: 20,
-        backgroundColor: "#f5f5f5",
-      }}
-    >
+    <View style={{ flex: 1, padding: 20, backgroundColor: "#f5f5f5" }}>
       <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20 }}>
         My Medicines
       </Text>
 
+      {/* List medicines */}
       <FlatList
         data={medicines}
         keyExtractor={(item) => item.id}
@@ -71,6 +79,7 @@ export default function MyMedicine() {
         )}
       />
 
+      {/* Button to open modal for adding new medicine */}
       <TouchableOpacity
         style={{
           backgroundColor: "#4CAF50",
@@ -106,6 +115,7 @@ export default function MyMedicine() {
               Add New Medicine
             </Text>
 
+            {/* Input for medicine name */}
             <TextInput
               placeholder="Medicine Name"
               value={newMedicine}
@@ -119,19 +129,31 @@ export default function MyMedicine() {
               }}
             />
 
-            <TextInput
-              placeholder="Time (e.g., 8:00 AM)"
-              value={newTime}
-              onChangeText={setNewTime}
+            {/* Button to open time picker */}
+            <TouchableOpacity
+              onPress={() => setShowPicker(true)}
               style={{
                 borderWidth: 1,
                 borderColor: "#ddd",
                 padding: 10,
                 marginBottom: 10,
                 borderRadius: 5,
+                justifyContent: "center",
+                alignItems: "center",
               }}
-            />
+            >
+              <Text>{newTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            </TouchableOpacity>
+            r
+              <DateTimePicker
+                value={newTime}
+                mode="time"
+                display="default"
+                onChange={handleTimeChange}
+              />
+            
 
+            {/* Buttons to confirm or cancel */}
             <Button title="Add" onPress={addMedicine} />
             <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
           </View>
