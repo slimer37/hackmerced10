@@ -1,13 +1,25 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
-import { navigate } from 'expo-router/build/global-state/routing';
+import { Tabs, useNavigation } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
+
+function ProfileButton() {
+  const navigation = useNavigation();
+
+  const goToProfile = () => {
+    navigation.navigate('profile' as never);
+  }
+  
+  return (
+    <TouchableOpacity onPress={goToProfile} style={{ width: 50 }}>
+      <FontAwesome size={28} name="user" color="black" style={{margin:'auto'}}/>
+    </TouchableOpacity>
+  );
+}
 
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: 'blue',
-        headerLeft: () => (
-            <FontAwesome size={28} name="user" color="black" style={{ marginLeft: 15 }}/>
-        )
+        headerLeft: ProfileButton
      }}>
       <Tabs.Screen
         name="index"
@@ -28,13 +40,6 @@ export default function TabLayout() {
         options={{
           title: 'Find & Restock',
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="search" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="mymedicine"
-        options={{
-          title: 'My Medicine',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="circle-o" color={color} />,
         }}
       />
     </Tabs>

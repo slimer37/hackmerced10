@@ -25,6 +25,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "react-native-auth0",
+        {
+          "domain": "dev-g764byi3mgr8fsp2.us.auth0.com"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
